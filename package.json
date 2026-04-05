@@ -21,7 +21,9 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "db:generate": "turbo run db:generate",
     "db:push": "turbo run db:push",
+    "db:push:full": "node scripts/db-push-full.js",
     "db:seed": "turbo run db:seed",
+    "db:seed:full": "node scripts/db-push-full.js --seed-accounting",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "db:migrate": "turbo run db:generate && turbo run db:push"
