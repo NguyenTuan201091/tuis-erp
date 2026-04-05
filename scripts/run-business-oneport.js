@@ -25,6 +25,14 @@ function runSync(command, args, label) {
   }
 }
 
+function runSyncStatus(command, args) {
+  return spawnSync(command, args, {
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+    env: process.env,
+  });
+}
+
 function isDockerPermissionError(output) {
   const text = (output || '').toLowerCase();
   return (
@@ -43,7 +51,12 @@ function ensureDockerInfrastructure() {
   });
 
   if (probe.status === 0) {
-    runSync('npm', ['run', 'docker:up'], 'docker:up');
+    const up = runSyncStatus('npm', ['run', 'docker:up']);
+    if (up.status === 0) return;
+
+    console.log('docker:up failed. Retrying with sudo docker compose up -d...');
+    runSync('sudo', ['-v'], 'sudo -v');
+    runSync('sudo', ['docker', 'compose', 'up', '-d'], 'sudo docker compose up -d');
     return;
   }
 
