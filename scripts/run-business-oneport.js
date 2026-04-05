@@ -7,6 +7,7 @@ const httpProxy = require('http-proxy');
 const GATEWAY_PORT = Number(process.env.BUSINESS_GATEWAY_PORT || 3000);
 const SKIP_DOCKER = process.env.BUSINESS_SKIP_DOCKER === '1';
 const MRP_PORT = 3005;
+const DEFAULT_BASE_DATABASE_URL = 'postgresql://erp:erp_dev_2026@localhost:5432/erp_dev';
 
 const APPS = {
   accounting: 'http://127.0.0.1:3007',
@@ -91,6 +92,26 @@ function ensureDockerInfrastructure() {
   }
 
   throw new Error('Docker is not ready. Please ensure Docker Engine is installed and running.');
+}
+
+function resolveBaseDatabaseUrl() {
+  // Priority: explicit BASE_DATABASE_URL -> current DATABASE_URL -> default local URL
+  return process.env.BASE_DATABASE_URL || process.env.DATABASE_URL || DEFAULT_BASE_DATABASE_URL;
+}
+
+function buildDatabaseUrlWithSchema(baseUrl, schema) {
+  try {
+    const url = new URL(baseUrl);
+    url.searchParams.set('schema', schema);
+    return url.toString();
+  } catch {
+    // Fallback string manipulation for non-standard URLs
+    const withoutSchema = baseUrl
+      .replace(/([?&])schema=[^&]*/g, '$1')
+      .replace(/[?&]$/, '');
+    const separator = withoutSchema.includes('?') ? '&' : '?';
+    return `${withoutSchema}${separator}schema=${schema}`;
+  }
 }
 
 function buildBusinessEnv() {
@@ -242,7 +263,14 @@ try {
   console.log('4) Starting business modules (Accounting, Ecommerce, MRP)...\n');
 
   const businessEnv = buildBusinessEnv();
-  const mrpEnv = { ...businessEnv, PORT: '3005' };
+  const baseDatabaseUrl = resolveBaseDatabaseUrl();
+  const mrpEnv = {
+    ...businessEnv,
+    PORT: '3005',
+    DATABASE_URL: buildDatabaseUrlWithSchema(baseDatabaseUrl, 'mrp'),
+  };
+
+  console.log('MRP DATABASE_URL schema pinned to: mrp');
 
   // Run Accounting + Ecommerce via turbo, but run MRP with dev:next to avoid
   // ts-node server crashes on newer Node versions (e.g. Node 24 exit 134).
