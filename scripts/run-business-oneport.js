@@ -13,6 +13,8 @@ const APPS = {
   mrp: 'http://127.0.0.1:3005',
 };
 
+const BUSINESS_WORKSPACES = ['erp-accounting', 'erp-ecommerce', 'vierp-mrp'];
+
 function runSync(command, args, label) {
   const result = spawnSync(command, args, {
     stdio: 'inherit',
@@ -202,6 +204,11 @@ try {
 
   console.log('2) Preparing database schemas and seed data...');
   runSync('node', ['scripts/db-push-business.js'], 'db-push-business');
+
+  console.log('2.1) Generating Prisma clients for business modules...');
+  for (const workspace of BUSINESS_WORKSPACES) {
+    runSync('npm', ['run', 'db:generate', '--workspace', workspace], `${workspace} db:generate`);
+  }
 
   console.log('3) Starting business gateway at one localhost...');
   createGateway();
