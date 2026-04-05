@@ -6,6 +6,7 @@ const httpProxy = require('http-proxy');
 
 const GATEWAY_PORT = Number(process.env.BUSINESS_GATEWAY_PORT || 3000);
 const SKIP_DOCKER = process.env.BUSINESS_SKIP_DOCKER === '1';
+const MRP_PORT = 3005;
 
 const APPS = {
   accounting: 'http://127.0.0.1:3007',
@@ -90,6 +91,31 @@ function ensureDockerInfrastructure() {
   }
 
   throw new Error('Docker is not ready. Please ensure Docker Engine is installed and running.');
+}
+
+function buildBusinessEnv() {
+  const env = { ...process.env };
+
+  // Provide sane local defaults so NextAuth does not crash MRP APIs.
+  if (!env.NEXTAUTH_SECRET) {
+    env.NEXTAUTH_SECRET = 'dev-business-oneport-nextauth-secret';
+    console.log('Using default NEXTAUTH_SECRET for local business profile.');
+  }
+
+  if (!env.NEXTAUTH_URL) {
+    env.NEXTAUTH_URL = `http://localhost:${MRP_PORT}`;
+    console.log(`Using default NEXTAUTH_URL=${env.NEXTAUTH_URL}`);
+  }
+
+  // Newer Auth.js setups may read AUTH_SECRET/AUTH_URL aliases.
+  if (!env.AUTH_SECRET) {
+    env.AUTH_SECRET = env.NEXTAUTH_SECRET;
+  }
+  if (!env.AUTH_URL) {
+    env.AUTH_URL = env.NEXTAUTH_URL;
+  }
+
+  return env;
 }
 
 function parseCookie(header) {
@@ -215,6 +241,8 @@ try {
 
   console.log('4) Starting business modules (Accounting, Ecommerce, MRP)...\n');
 
+  const businessEnv = buildBusinessEnv();
+
   const dev = spawn(
     'npx',
     [
@@ -229,7 +257,7 @@ try {
     {
       stdio: 'inherit',
       shell: process.platform === 'win32',
-      env: process.env,
+      env: businessEnv,
     }
   );
 
