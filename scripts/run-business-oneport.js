@@ -25,7 +25,16 @@ function runSync(command, args, label) {
   }
 }
 
-function checkDockerAccess() {
+function isDockerPermissionError(output) {
+  const text = (output || '').toLowerCase();
+  return (
+    text.includes('permission denied while trying to connect to the docker api') ||
+    text.includes('/var/run/docker.sock') ||
+    text.includes('got permission denied')
+  );
+}
+
+function ensureDockerInfrastructure() {
   const probe = spawnSync('docker', ['ps'], {
     stdio: 'pipe',
     shell: process.platform === 'win32',
@@ -33,29 +42,36 @@ function checkDockerAccess() {
     encoding: 'utf8',
   });
 
-  if (probe.status === 0) return;
+  if (probe.status === 0) {
+    runSync('npm', ['run', 'docker:up'], 'docker:up');
+    return;
+  }
 
-  const combined = `${probe.stdout || ''}\n${probe.stderr || ''}`.toLowerCase();
-  const isPermissionError =
-    combined.includes('permission denied while trying to connect to the docker api') ||
-    combined.includes('/var/run/docker.sock') ||
-    combined.includes('got permission denied');
+  const combined = `${probe.stdout || ''}\n${probe.stderr || ''}`;
+  if (isDockerPermissionError(combined)) {
+    console.log('Docker socket permission denied. Retrying with sudo: docker compose up -d');
+    console.log('You may be prompted for your sudo password.');
 
-  if (isPermissionError) {
-    throw new Error(
-      [
-        'Docker permission error: current user cannot access /var/run/docker.sock.',
-        '',
-        'Fix on Ubuntu:',
-        '  sudo usermod -aG docker $USER',
-        '  newgrp docker',
-        '  docker ps',
-        '',
-        'Temporary workaround:',
-        '  sudo npm run docker:up',
-        '  BUSINESS_SKIP_DOCKER=1 npm run dev:business:one',
-      ].join('\n')
-    );
+    const sudoCheck = spawnSync('sudo', ['-v'], {
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+      env: process.env,
+    });
+
+    if (sudoCheck.status !== 0) {
+      throw new Error(
+        [
+          'Failed to authenticate sudo for Docker startup.',
+          'Fix on Ubuntu:',
+          '  sudo usermod -aG docker $USER',
+          '  newgrp docker',
+          'Then rerun: npm run dev:business:one',
+        ].join('\n')
+      );
+    }
+
+    runSync('sudo', ['docker', 'compose', 'up', '-d'], 'sudo docker compose up -d');
+    return;
   }
 
   throw new Error('Docker is not ready. Please ensure Docker Engine is installed and running.');
@@ -168,8 +184,7 @@ try {
     console.log('1) Skipping Docker infrastructure (BUSINESS_SKIP_DOCKER=1).');
   } else {
     console.log('1) Starting Docker infrastructure...');
-    checkDockerAccess();
-    runSync('npm', ['run', 'docker:up'], 'docker:up');
+    ensureDockerInfrastructure();
   }
 
   console.log('2) Preparing database schemas and seed data...');
