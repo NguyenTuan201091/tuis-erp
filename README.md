@@ -239,6 +239,10 @@ npm run db:push:business
 | `npm run docker:down` | Stop Docker services |
 | `npm run db:migrate` | Run database migrations |
 
+### Thuat ngu ERP tieng Viet (chuan hoa)
+
+- Xem bo tu dien thuat ngu de dung thong nhat giua cac module: [docs/guides/ERP_GLOSSARY_VI.md](docs/guides/ERP_GLOSSARY_VI.md)
+
 > **macOS/Linux**: `make` commands cũng hoạt động (`make dev`, `make setup`). Xem `make help`.
 
 ### Cách 3: Docker Compose Production
