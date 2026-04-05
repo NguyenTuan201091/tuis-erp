@@ -1,83 +1,89 @@
-const quickLinks = [
-  { label: "Health Check", href: "/api/health", description: "Module health and uptime" },
-  { label: "OpenAPI JSON", href: "/api/docs", description: "Machine-readable API spec" },
-  { label: "Swagger UI", href: "/api/docs/ui", description: "Interactive API explorer" },
-  { label: "Prometheus Metrics", href: "/api/metrics", description: "Monitoring endpoint" },
-];
-
 export default function HomePage() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "2rem",
-        fontFamily: "ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif",
-        background: "linear-gradient(160deg, #f8fbff 0%, #eef6ff 100%)",
-        color: "#0b1220",
-      }}
-    >
-      <section
-        style={{
-          maxWidth: "980px",
-          margin: "0 auto",
-          background: "#ffffff",
-          border: "1px solid #dbe7ff",
-          borderRadius: "16px",
-          padding: "1.5rem",
-          boxShadow: "0 12px 30px rgba(20, 74, 170, 0.08)",
-        }}
-      >
-        <p
-          style={{
-            display: "inline-block",
-            margin: 0,
-            marginBottom: "0.75rem",
-            padding: "0.25rem 0.6rem",
-            borderRadius: "999px",
-            fontSize: "0.8rem",
-            fontWeight: 700,
-            letterSpacing: "0.02em",
-            background: "#e9f2ff",
-            color: "#1b4fc2",
-          }}
-        >
-          VIETERP ACCOUNTING
-        </p>
+    <section className="page-grid">
+      <div className="kpi-grid">
+        <article className="card">
+          <p className="kpi-title">Cash Position</p>
+          <p className="kpi-value">10.75B VND</p>
+          <div className="kpi-trend kpi-trend-up">+4.2% vs last month</div>
+        </article>
 
-        <h1 style={{ margin: 0, fontSize: "2rem", lineHeight: 1.2 }}>Finance Operations Hub</h1>
-        <p style={{ marginTop: "0.75rem", marginBottom: 0, color: "#334155" }}>
-          Module is running on port 3007. Use the links below to verify health, inspect API docs, and check
-          metrics while developing.
-        </p>
+        <article className="card">
+          <p className="kpi-title">Outstanding Receivables</p>
+          <p className="kpi-value">5.12B VND</p>
+          <div className="kpi-trend kpi-trend-down">+8.1% overdue risk</div>
+        </article>
 
-        <div
-          style={{
-            marginTop: "1.5rem",
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "0.9rem",
-          }}
-        >
-          {quickLinks.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              style={{
-                textDecoration: "none",
-                border: "1px solid #d6e4ff",
-                borderRadius: "12px",
-                padding: "0.9rem",
-                background: "#f8fbff",
-                color: "#0f172a",
-              }}
-            >
-              <div style={{ fontWeight: 700, marginBottom: "0.35rem" }}>{item.label}</div>
-              <div style={{ color: "#475569", fontSize: "0.92rem" }}>{item.description}</div>
-              <div style={{ marginTop: "0.45rem", color: "#1d4ed8", fontSize: "0.85rem" }}>{item.href}</div>
-            </a>
-          ))}
+        <article className="card">
+          <p className="kpi-title">Payables Due (7d)</p>
+          <p className="kpi-value">1.36B VND</p>
+          <div className="kpi-trend">11 invoices pending approval</div>
+        </article>
+
+        <article className="card">
+          <p className="kpi-title">Close Progress</p>
+          <p className="kpi-value">78%</p>
+          <div className="kpi-trend">April period close in progress</div>
+        </article>
+      </div>
+
+      <div className="columns">
+        <article className="card">
+          <h2 className="card-title">Recent Journal Entries</h2>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Entry</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>JV-2026-000145</td>
+                <td>2026-04-05</td>
+                <td>Revenue recognition for service contract</td>
+                <td><span className="status-pill status-draft">Draft</span></td>
+              </tr>
+              <tr>
+                <td>JV-2026-000144</td>
+                <td>2026-04-04</td>
+                <td>Inventory valuation adjustment</td>
+                <td><span className="status-pill status-review">In Review</span></td>
+              </tr>
+              <tr>
+                <td>JV-2026-000143</td>
+                <td>2026-04-03</td>
+                <td>Payroll accrual and tax provision</td>
+                <td><span className="status-pill status-posted">Posted</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <div className="page-grid">
+          <article className="card">
+            <h2 className="card-title">Quick Actions</h2>
+            <div className="quick-actions">
+              <a className="action-link" href="/journals">Review journal queue</a>
+              <a className="action-link" href="/accounts">Open chart of accounts</a>
+              <a className="action-link" href="/periods">Manage period close</a>
+              <a className="action-link" href="/reports">Generate management reports</a>
+            </div>
+          </article>
+
+          <article className="card">
+            <h2 className="card-title">System Endpoints</h2>
+            <div className="simple-list">
+              <a href="/api/health">/api/health</a>
+              <a href="/api/docs">/api/docs</a>
+              <a href="/api/docs/ui">/api/docs/ui</a>
+              <a href="/api/metrics">/api/metrics</a>
+            </div>
+          </article>
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
   );
 }
