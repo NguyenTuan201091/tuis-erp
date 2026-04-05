@@ -190,6 +190,26 @@ npm run db:seed
 npm run dev
 ```
 
+### Cách 2B: Chạy profile Kinh doanh (1 lệnh)
+
+```bash
+# Dành cho mô hình tự kinh doanh/sản xuất nhỏ
+# Tự chạy: docker up + db push (accounting/ecommerce/mrp) + seed accounting + dev
+npm run dev:business
+```
+
+Module được bật trong profile này:
+
+- Accounting: http://localhost:3007
+- Ecommerce: http://localhost:3008
+- MRP: http://localhost:3005
+
+Nếu bạn chỉ muốn chuẩn bị database mà chưa chạy dev:
+
+```bash
+npm run db:push:business
+```
+
 ### Lệnh thường dùng / Common Commands
 
 | Lệnh / Command | Mô tả / Description |
