@@ -198,6 +198,20 @@ npm run dev
 npm run dev:business
 ```
 
+### Cách 2C: Chạy profile Kinh doanh trên 1 localhost
+
+```bash
+# Chạy một URL duy nhất qua gateway
+npm run dev:business:one
+```
+
+Truy cập một địa chỉ:
+
+- Portal: http://localhost:3000
+- Accounting: http://localhost:3000/accounting
+- Ecommerce: http://localhost:3000/ecommerce
+- MRP: http://localhost:3000/mrp
+
 Module được bật trong profile này:
 
 - Accounting: http://localhost:3007
