@@ -242,17 +242,19 @@ try {
   console.log('4) Starting business modules (Accounting, Ecommerce, MRP)...\n');
 
   const businessEnv = buildBusinessEnv();
+  const mrpEnv = { ...businessEnv, PORT: '3005' };
 
-  const dev = spawn(
+  // Run Accounting + Ecommerce via turbo, but run MRP with dev:next to avoid
+  // ts-node server crashes on newer Node versions (e.g. Node 24 exit 134).
+  const coreDev = spawn(
     'npx',
     [
       'turbo',
       'run',
       'dev',
-      '--concurrency=8',
+      '--concurrency=6',
       '--filter=erp-accounting',
       '--filter=erp-ecommerce',
-      '--filter=vierp-mrp',
     ],
     {
       stdio: 'inherit',
@@ -261,8 +263,40 @@ try {
     }
   );
 
-  dev.on('exit', (code) => {
+  const mrpDev = spawn('npm', ['run', 'dev:next', '--workspace', 'vierp-mrp'], {
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+    env: mrpEnv,
+  });
+
+  let shuttingDown = false;
+
+  const shutdownOthers = (source, code) => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+
+    if (source !== 'core' && coreDev && !coreDev.killed) {
+      coreDev.kill('SIGINT');
+    }
+    if (source !== 'mrp' && mrpDev && !mrpDev.killed) {
+      mrpDev.kill('SIGINT');
+    }
+
     process.exit(code ?? 0);
+  };
+
+  coreDev.on('exit', (code) => {
+    console.log(`Core business modules exited with code: ${code ?? 0}`);
+    shutdownOthers('core', code ?? 0);
+  });
+
+  mrpDev.on('exit', (code) => {
+    console.log(`MRP module exited with code: ${code ?? 0}`);
+    shutdownOthers('mrp', code ?? 0);
+  });
+
+  process.on('SIGINT', () => {
+    shutdownOthers('signal', 0);
   });
 } catch (error) {
   console.error(String(error));
