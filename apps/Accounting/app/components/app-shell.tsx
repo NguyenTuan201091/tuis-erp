@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 const navItems = [
-  { href: "/", label: "Dashboard" },
-  { href: "/accounts", label: "Chart of Accounts" },
-  { href: "/journals", label: "Journal Entries" },
-  { href: "/periods", label: "Fiscal Periods" },
-  { href: "/reports", label: "Reports" },
+  { href: "/", label: "Tong quan" },
+  { href: "/accounts", label: "He thong tai khoan" },
+  { href: "/journals", label: "But toan" },
+  { href: "/periods", label: "Ky ke toan" },
+  { href: "/reports", label: "Bao cao" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -20,7 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="sidebar">
         <div className="brand">
           <p className="brand-kicker">VietERP Module</p>
-          <p className="brand-title">Accounting Control</p>
+          <p className="brand-title">Dieu hanh Ke toan</p>
         </div>
 
         <nav className="nav" aria-label="Primary navigation">
@@ -42,10 +42,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="content-wrap">
         <header className="topbar">
           <div>
-            <h1 className="topbar-title">Finance Operations Hub</h1>
-            <p className="topbar-sub">General Ledger, period close, and reporting workspace</p>
+            <h1 className="topbar-title">Trung tam van hanh Tai chinh</h1>
+            <p className="topbar-sub">So cai, dong ky, va bao cao quan tri</p>
           </div>
-          <span className="badge-live">Live on :3007</span>
+          <span className="badge-live">Dang chay :3007</span>
         </header>
         {children}
       </div>

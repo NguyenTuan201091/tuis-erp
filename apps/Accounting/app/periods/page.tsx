@@ -1,31 +1,38 @@
-const periods = [
-  { period: "2026-01", closeState: "Closed", owner: "Tran HQ" },
-  { period: "2026-02", closeState: "Closed", owner: "Tran HQ" },
-  { period: "2026-03", closeState: "Soft Close", owner: "Le PM" },
-  { period: "2026-04", closeState: "Open", owner: "Le PM" },
-];
+import { getPeriodsData } from "../../src/lib/accounting-data";
 
-export default function PeriodsPage() {
+export default async function PeriodsPage() {
+  const periods = await getPeriodsData();
+
   return (
     <section className="page-grid">
       <article className="card">
-        <h2 className="card-title">Fiscal Period Control</h2>
+        <h2 className="card-title">Quan ly ky ke toan</h2>
         <table className="table">
           <thead>
             <tr>
-              <th>Period</th>
-              <th>Status</th>
-              <th>Responsible</th>
+              <th>Nam</th>
+              <th>Ky</th>
+              <th>Ten ky</th>
+              <th>Trang thai</th>
+              <th>Ngay dong</th>
             </tr>
           </thead>
           <tbody>
-            {periods.map((row) => (
-              <tr key={row.period}>
-                <td>{row.period}</td>
-                <td>{row.closeState}</td>
-                <td>{row.owner}</td>
+            {periods.length === 0 ? (
+              <tr>
+                <td colSpan={5}>Chua co ky ke toan. Hay chay seed de tao ky mac dinh.</td>
               </tr>
-            ))}
+            ) : (
+              periods.map((row) => (
+                <tr key={row.id}>
+                  <td>{row.year}</td>
+                  <td>{row.period}</td>
+                  <td>{row.name}</td>
+                  <td>{row.statusLabel}</td>
+                  <td>{row.closedAt ? new Date(row.closedAt).toLocaleDateString("vi-VN") : "-"}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </article>

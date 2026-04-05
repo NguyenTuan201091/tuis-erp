@@ -1,34 +1,40 @@
-const accounts = [
-  { number: "111", name: "Cash", group: "Group 1", balance: "2,450,000,000" },
-  { number: "112", name: "Bank", group: "Group 1", balance: "8,300,000,000" },
-  { number: "131", name: "Accounts Receivable", group: "Group 1", balance: "5,120,000,000" },
-  { number: "331", name: "Accounts Payable", group: "Group 3", balance: "3,840,000,000" },
-  { number: "511", name: "Revenue", group: "Group 5", balance: "11,900,000,000" },
-];
+import { getAccountsData } from "../../src/lib/accounting-data";
 
-export default function AccountsPage() {
+export default async function AccountsPage() {
+  const accounts = await getAccountsData();
+
   return (
     <section className="page-grid">
       <article className="card">
-        <h2 className="card-title">Chart of Accounts (VAS)</h2>
+        <h2 className="card-title">He thong tai khoan (VAS)</h2>
         <table className="table">
           <thead>
             <tr>
-              <th>Account</th>
-              <th>Name</th>
-              <th>Group</th>
-              <th>Current Balance (VND)</th>
+              <th>So TK</th>
+              <th>Ten tai khoan</th>
+              <th>Loai</th>
+              <th>Nhom</th>
+              <th>So du hien tai</th>
+              <th>Trang thai</th>
             </tr>
           </thead>
           <tbody>
-            {accounts.map((account) => (
-              <tr key={account.number}>
-                <td>{account.number}</td>
-                <td>{account.name}</td>
-                <td>{account.group}</td>
-                <td>{account.balance}</td>
+            {accounts.length === 0 ? (
+              <tr>
+                <td colSpan={6}>Chua co tai khoan. Hay chay seed de tao du lieu ban dau.</td>
               </tr>
-            ))}
+            ) : (
+              accounts.map((account) => (
+                <tr key={account.id}>
+                  <td>{account.accountNumber}</td>
+                  <td>{account.name}</td>
+                  <td>{account.accountType}</td>
+                  <td>{account.accountGroup}</td>
+                  <td>{account.currentBalanceText}</td>
+                  <td>{account.isActive ? "Dang hoat dong" : "Ngung"}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </article>
