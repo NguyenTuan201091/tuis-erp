@@ -307,7 +307,7 @@ export function InventoryTable({ initialData = [] }: InventoryTableProps) {
     },
     {
       key: 'lotNumber',
-      header: 'Lot Number',
+      header: t('inv.lotNumber'),
       width: '120px',
       sortable: true,
       render: (value) => value ? String(value) : <span className="text-slate-400">-</span>,
@@ -370,7 +370,7 @@ export function InventoryTable({ initialData = [] }: InventoryTableProps) {
     },
     {
       key: 'safetyStock',
-      header: 'Safety Stock',
+      header: t('inv.safetyStock'),
       width: '100px',
       type: 'number',
       render: (value, row) => (
@@ -386,7 +386,7 @@ export function InventoryTable({ initialData = [] }: InventoryTableProps) {
     },
     {
       key: 'minStockLevel',
-      header: 'Min Stock',
+      header: t('inv.minStock'),
       width: '100px',
       type: 'number',
       render: (value, row) => (
@@ -402,7 +402,7 @@ export function InventoryTable({ initialData = [] }: InventoryTableProps) {
     },
     {
       key: 'reorderPoint',
-      header: 'Reorder Pt',
+      header: t('inv.reorderPoint'),
       width: '100px',
       type: 'number',
       render: (value, row) => (
@@ -469,7 +469,7 @@ export function InventoryTable({ initialData = [] }: InventoryTableProps) {
             onClick={() => setAdjustDialogOpen(true)}
           >
             <Settings className="h-4 w-4 mr-2" />
-            Adjust
+            {t('inv.adjustButton')}
           </PermissionButton>
         </div>
       </div>
@@ -499,7 +499,7 @@ export function InventoryTable({ initialData = [] }: InventoryTableProps) {
             columnHeaderStyle: 'field-names',
             gridBorders: true,
             showFooter: true,
-            sheetName: 'Inventory',
+            sheetName: t('nav.inventory'),
             compactMode: true,
           }}
         />

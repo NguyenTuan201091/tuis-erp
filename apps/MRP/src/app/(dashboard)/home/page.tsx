@@ -419,7 +419,7 @@ function QuickActionButton({
 
 export default function HomePage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [stats, setStats] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -450,11 +450,11 @@ export default function HomePage() {
           const data = await res.json();
           setStats(data);
         } else {
-          setError('Không thể tải dữ liệu bảng điều khiển');
+          setError(t('dashboard.fetchFailed'));
         }
       } catch (err) {
         clientLogger.error('Failed to fetch dashboard stats:', err);
-        setError('Không thể kết nối đến máy chủ');
+        setError(t('dashboard.connectionFailed'));
       } finally {
         setLoading(false);
       }
@@ -477,7 +477,7 @@ export default function HomePage() {
             return {
               id: wo.id as string,
               number: wo.woNumber as string,
-              product: (wo.product as Record<string, unknown>)?.name as string || 'N/A',
+              product: (wo.product as Record<string, unknown>)?.name as string || t('dashboard.na'),
               quantity,
               completed: completedQty,
               status: mapWoStatus(wo.status as string),
@@ -595,9 +595,9 @@ export default function HomePage() {
 
     if (showRefreshToast) {
       setRefreshing(false);
-      toast.success('Dữ liệu đã được cập nhật');
+      toast.success(t('dashboard.dataUpdated'));
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchAllData();
@@ -670,7 +670,7 @@ export default function HomePage() {
           </div>
           <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-mrp-text-muted">
             <span>{t('dashboard.description')}</span>
-            <span className="hidden sm:inline"> • {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            <span className="hidden sm:inline"> • {new Date().toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
           </p>
         </div>
         {/* Auto-refresh bar replaces manual refresh button */}
@@ -700,7 +700,7 @@ export default function HomePage() {
           icon={ShoppingCart}
           href="/orders"
           severity={(stats?.pendingOrders ?? 0) > 5 ? 'warning' : 'default'}
-          tooltip="Đơn hàng: Số lượng đơn hàng chờ xử lý"
+          tooltip={t('dashboard.kpiPendingOrdersTooltip')}
         />
         <KpiTile
           label={t('dashboard.criticalStock')}
@@ -709,7 +709,7 @@ export default function HomePage() {
           href="/inventory"
           severity={(stats?.criticalStock ?? 0) > 0 ? 'danger' : 'success'}
           pulse={(stats?.criticalStock ?? 0) > 0}
-          tooltip="Tồn kho: Số mặt hàng dưới mức tồn kho tối thiểu"
+          tooltip={t('dashboard.kpiCriticalStockTooltip')}
         />
         <KpiTile
           label={t('dashboard.activePOs')}
@@ -717,7 +717,7 @@ export default function HomePage() {
           icon={Package}
           href="/purchase-orders"
           severity="default"
-          tooltip="Đơn mua: Số đơn đặt hàng đang xử lý"
+          tooltip={t('dashboard.kpiActivePOsTooltip')}
         />
         <KpiTile
           label={t('dashboard.reorderAlerts')}
@@ -726,7 +726,7 @@ export default function HomePage() {
           href="/alerts"
           severity={(stats?.reorderAlerts ?? 0) > 0 ? 'warning' : 'success'}
           pulse={(stats?.reorderAlerts ?? 0) > 3}
-          tooltip="Cảnh báo: Số cảnh báo đặt hàng lại cần xử lý"
+          tooltip={t('dashboard.kpiReorderAlertsTooltip')}
         />
         <KpiTile
           label={t('dashboard.oee')}
@@ -734,7 +734,7 @@ export default function HomePage() {
           icon={Activity}
           href="/production"
           severity={oee >= 85 ? 'success' : oee >= 60 ? 'warning' : 'danger'}
-          tooltip="OEE: Hiệu suất thiết bị tổng thể (%)"
+          tooltip={t('dashboard.kpiOeeTooltip')}
         />
         <KpiTile
           label={t('dashboard.uptime')}
@@ -742,7 +742,7 @@ export default function HomePage() {
           icon={Target}
           href="/production"
           severity={uptime >= 90 ? 'success' : uptime >= 70 ? 'warning' : 'danger'}
-          tooltip="Khả dụng: Tỷ lệ thời gian máy hoạt động (%)"
+          tooltip={t('dashboard.kpiUptimeTooltip')}
         />
         <KpiTile
           label={t('dashboard.qualityRate')}
@@ -750,7 +750,7 @@ export default function HomePage() {
           icon={CheckCircle2}
           href="/quality"
           severity={quality >= 95 ? 'success' : quality >= 85 ? 'warning' : 'danger'}
-          tooltip="Chất lượng: Tỷ lệ sản phẩm đạt yêu cầu (%)"
+          tooltip={t('dashboard.kpiQualityTooltip')}
         />
         <KpiTile
           label={t('dashboard.activeWorkOrders')}
@@ -758,7 +758,7 @@ export default function HomePage() {
           icon={Factory}
           href="/production"
           severity="default"
-          tooltip="Sản xuất: Số lệnh sản xuất đang thực hiện"
+          tooltip={t('dashboard.kpiActiveWOsTooltip')}
         />
       </div>
 
@@ -784,13 +784,13 @@ export default function HomePage() {
           {workOrdersLoading ? (
             <div className="flex items-center justify-center py-6">
               <Loader2 className="h-4 w-4 animate-spin text-info-cyan" />
-              <span className="ml-2 text-[11px] text-gray-500 dark:text-mrp-text-muted">Đang tải dữ liệu sản xuất...</span>
+              <span className="ml-2 text-[11px] text-gray-500 dark:text-mrp-text-muted">{t('dashboard.loadingProductionData')}</span>
             </div>
           ) : workOrders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 gap-2">
               <Factory className="h-8 w-8 text-gray-300 dark:text-mrp-border" />
-              <span className="text-[11px] font-medium text-gray-500 dark:text-mrp-text-muted">Chưa có lệnh sản xuất</span>
-              <span className="text-[10px] text-gray-400 dark:text-mrp-text-muted">Tạo lệnh sản xuất mới để bắt đầu theo dõi tiến độ</span>
+              <span className="text-[11px] font-medium text-gray-500 dark:text-mrp-text-muted">{t('dashboard.noProductionOrders')}</span>
+              <span className="text-[10px] text-gray-400 dark:text-mrp-text-muted">{t('dashboard.createProductionOrderHint')}</span>
             </div>
           ) : (
             workOrders.map((order) => (
@@ -826,13 +826,13 @@ export default function HomePage() {
           {alertsLoading ? (
             <div className="flex items-center justify-center py-6">
               <Loader2 className="h-4 w-4 animate-spin text-info-cyan" />
-              <span className="ml-2 text-[11px] text-gray-500 dark:text-mrp-text-muted">Đang tải cảnh báo...</span>
+              <span className="ml-2 text-[11px] text-gray-500 dark:text-mrp-text-muted">{t('dashboard.loadingAlerts')}</span>
             </div>
           ) : alerts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 gap-2">
               <CheckCircle2 className="h-8 w-8 text-production-green/50" />
-              <span className="text-[11px] font-medium text-gray-500 dark:text-mrp-text-muted">Không có cảnh báo</span>
-              <span className="text-[10px] text-gray-400 dark:text-mrp-text-muted">Hệ thống đang hoạt động bình thường</span>
+              <span className="text-[11px] font-medium text-gray-500 dark:text-mrp-text-muted">{t('dashboard.noAlerts')}</span>
+              <span className="text-[10px] text-gray-400 dark:text-mrp-text-muted">{t('dashboard.alertSystemNormal')}</span>
             </div>
           ) : (
             alerts.map((a) => (
@@ -906,7 +906,7 @@ export default function HomePage() {
           {workOrdersLoading ? (
             <div className="flex items-center justify-center py-6">
               <Loader2 className="h-4 w-4 animate-spin text-info-cyan" />
-              <span className="ml-2 text-[11px] text-gray-500 dark:text-mrp-text-muted">Đang tải...</span>
+              <span className="ml-2 text-[11px] text-gray-500 dark:text-mrp-text-muted">{t('dashboard.loadingSummary')}</span>
             </div>
           ) : (
             <>

@@ -15,7 +15,7 @@ const translations: Record<Language, Record<string, string>> = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("en");
+  const [language, setLanguageState] = useState<Language>("vi");
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Hydrate on mount - read from localStorage
@@ -33,7 +33,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Use the actual language for translation after hydration
-  const currentLanguage = isHydrated ? language : "en";
+  const currentLanguage = isHydrated ? language : "vi";
 
   const t = useCallback((key: string, params?: Record<string, string>): string => {
     let text = translations[currentLanguage][key] || key;

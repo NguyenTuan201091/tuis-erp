@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Factory, Calendar, Search, Download } from "lucide-react";
+import { Plus, Calendar, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -111,7 +111,7 @@ export default function ProductionPage() {
   const columns: Column<WorkOrder>[] = useMemo(() => [
     {
       key: 'woNumber',
-      header: 'WO #',
+      header: t('production.woNumber'),
       width: '120px',
       sortable: true,
       render: (value, row) => (
@@ -122,7 +122,7 @@ export default function ProductionPage() {
     },
     {
       key: 'product',
-      header: 'Product',
+      header: t('production.product'),
       width: '180px',
       render: (value) => value?.id ? (
         <EntityTooltip type="part" id={value.id}>
@@ -140,13 +140,13 @@ export default function ProductionPage() {
     },
     {
       key: 'quantity',
-      header: 'Qty',
+      header: t('production.quantityShort'),
       width: '70px',
       sortable: true,
     },
     {
       key: 'salesOrder',
-      header: 'Sales Order',
+      header: t('production.salesOrder'),
       width: '150px',
       render: (value) => value ? (
         <div>
@@ -167,18 +167,18 @@ export default function ProductionPage() {
     },
     {
       key: 'plannedEnd',
-      header: 'Due',
+      header: t('production.dueDateShort'),
       width: '90px',
       sortable: true,
       render: (value) => value ? formatDateMedium(value) : "-",
     },
     {
       key: 'allocations',
-      header: 'Materials',
+      header: t('production.materialReadiness'),
       width: '100px',
       render: (value) => {
         const readiness = getMaterialReadiness(value);
-        return `${readiness}% ready`;
+        return `${readiness}% ${t('production.readyShort')}`;
       },
       cellClassName: (value) => {
         const readiness = getMaterialReadiness(value);
@@ -189,7 +189,7 @@ export default function ProductionPage() {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('column.status'),
       width: '100px',
       sortable: true,
       render: (value) => <WOStatusBadge status={value} />,
@@ -204,11 +204,11 @@ export default function ProductionPage() {
           size="sm"
           onClick={() => router.push(`/production/${row.id}`)}
         >
-          View
+          {t('table.viewDetails')}
         </Button>
       ),
     },
-  ], [router]);
+  ], [router, t]);
 
   return (
     // COMPACT: space-y-6 → space-y-3
@@ -235,23 +235,23 @@ export default function ProductionPage() {
 
       {/* Stats Bar - Compact inline */}
       <CompactStatsBar stats={[
-        { label: 'Total WOs', value: stats.total.toLocaleString(), color: 'text-blue-600 dark:text-blue-400' },
-        { label: 'Showing', value: stats.displayed },
-        { label: 'Response Time', value: `${meta?.took || 0}ms` },
-        { label: 'Pages', value: pagination?.totalPages || 0 },
+        { label: t('production.totalWOs'), value: stats.total.toLocaleString(), color: 'text-blue-600 dark:text-blue-400' },
+        { label: t('production.showing'), value: stats.displayed },
+        { label: t('production.responseTime'), value: `${meta?.took || 0}ms` },
+        { label: t('production.pages'), value: pagination?.totalPages || 0 },
       ]} />
 
       {/* Work Orders List - COMPACT */}
       <Card className="border-gray-200 dark:border-mrp-border">
         <CardHeader className="px-3 py-2">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <CardTitle className="text-[11px] font-semibold font-mono uppercase tracking-wider">Work Orders</CardTitle>
+            <CardTitle className="text-[11px] font-semibold font-mono uppercase tracking-wider">{t('production.workOrders')}</CardTitle>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 w-full sm:w-auto">
               {/* Search Input - COMPACT */}
               <div className="relative">
                 <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
-                  placeholder="Search WO number..."
+                  placeholder={t('production.searchPlaceholder')}
                   value={searchInput}
                   onChange={handleSearchChange}
                   className="pl-7 h-9 text-xs w-full sm:w-[160px]"
@@ -260,14 +260,14 @@ export default function ProductionPage() {
               {/* Status Filter - COMPACT */}
               <Select value={statusFilter} onValueChange={handleStatusChange}>
                 <SelectTrigger className="w-full sm:w-[140px] h-9 text-xs">
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue placeholder={t('production.filterByStatus')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="released">Released</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="all">{t('production.allStatus')}</SelectItem>
+                  <SelectItem value="draft">{t('status.draft')}</SelectItem>
+                  <SelectItem value="released">{t('status.released')}</SelectItem>
+                  <SelectItem value="in_progress">{t('status.inProgress')}</SelectItem>
+                  <SelectItem value="completed">{t('status.completed')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -279,7 +279,7 @@ export default function ProductionPage() {
             columns={columns}
             keyField="id"
             loading={loading}
-            emptyMessage="No work orders found"
+            emptyMessage={t('production.emptyMessage')}
             searchable={false}
             stickyHeader
             excelMode={{
@@ -288,7 +288,7 @@ export default function ProductionPage() {
               columnHeaderStyle: 'field-names',
               gridBorders: true,
               showFooter: true,
-              sheetName: 'Work Orders',
+              sheetName: t('production.workOrders'),
               compactMode: true,
             }}
           />

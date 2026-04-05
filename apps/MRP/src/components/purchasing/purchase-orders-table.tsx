@@ -28,9 +28,9 @@ interface PurchaseOrdersTableProps {
 }
 
 function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('vi-VN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'VND',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
@@ -226,25 +226,25 @@ export function PurchaseOrdersTable({ initialData = [] }: PurchaseOrdersTablePro
     }
 
     const exportColumns: ExportColumn<PurchaseOrder>[] = [
-      { key: 'poNumber', header: 'PO Number', width: 12 },
-      { key: 'supplier', header: 'Supplier', width: 25, format: (v) => (v as { name?: string })?.name || '-' },
-      { key: 'orderDate', header: 'Order Date', width: 12, type: 'date' },
-      { key: 'expectedDate', header: 'Expected Date', width: 12, type: 'date' },
-      { key: 'linesCount', header: 'Items', width: 8, type: 'number', align: 'center', format: (_, row) => String(row.lines?.length || 0) },
-      { key: 'totalAmount', header: 'Total Amount', width: 15, type: 'currency', align: 'right' },
-      { key: 'status', header: 'Status', width: 12, format: (v) => (v as string)?.replace('_', ' ').toUpperCase() || '-' },
+      { key: 'poNumber', header: t('po.poNumber'), width: 12 },
+      { key: 'supplier', header: t('po.supplier'), width: 25, format: (v) => (v as { name?: string })?.name || '-' },
+      { key: 'orderDate', header: t('po.orderDate'), width: 12, type: 'date' },
+      { key: 'expectedDate', header: t('po.expectedDate'), width: 12, type: 'date' },
+      { key: 'linesCount', header: t('po.lineCount'), width: 8, type: 'number', align: 'center', format: (_, row) => String(row.lines?.length || 0) },
+      { key: 'totalAmount', header: t('column.totalAmount'), width: 15, type: 'currency', align: 'right' },
+      { key: 'status', header: t('column.status'), width: 12, format: (v) => (v as string)?.replace('_', ' ').toUpperCase() || '-' },
     ];
 
     const totalValue = orders.reduce((sum, po) => sum + (po.totalAmount || 0), 0);
 
     exportToExcel(orders, exportColumns, {
-      title: 'Purchase Orders Report',
-      filename: 'purchase-orders',
-      sheetName: 'Purchase Orders',
+      title: t('po.reportTitle'),
+      filename: 'don-mua-hang',
+      sheetName: t('po.pageTitle'),
     }, [
-      ['Total Purchase Orders', orders.length.toString()],
-      ['Total Value', formatCurrencyUtil(totalValue)],
-      ['Pending Orders', orders.filter(po => !['received', 'cancelled'].includes(po.status)).length.toString()],
+      [t('po.totalPO'), orders.length.toString()],
+      [t('po.totalValue'), formatCurrencyUtil(totalValue)],
+      [t('orders.pendingCount'), orders.filter(po => !['received', 'cancelled'].includes(po.status)).length.toString()],
     ]);
 
     toast.success(t('success.exported'));
@@ -347,7 +347,7 @@ export function PurchaseOrdersTable({ initialData = [] }: PurchaseOrdersTablePro
       header: t('po.currency'),
       width: '80px',
       hidden: true,
-      render: (value) => value || 'USD',
+      render: (value) => value || 'VND',
     },
 
     // ===== LINE ITEMS SECTION =====
@@ -356,7 +356,7 @@ export function PurchaseOrdersTable({ initialData = [] }: PurchaseOrdersTablePro
       header: t('po.lineCount'),
       width: '80px',
       render: (value) => (
-        <span className="font-mono text-xs">{value?.length || 0} items</span>
+        <span className="font-mono text-xs">{value?.length || 0} {t('po.itemsUnit')}</span>
       ),
     },
     {
@@ -475,7 +475,7 @@ export function PurchaseOrdersTable({ initialData = [] }: PurchaseOrdersTablePro
               columnHeaderStyle: 'field-names',
               gridBorders: true,
               showFooter: true,
-              sheetName: 'Purchase Orders',
+              sheetName: t('po.pageTitle'),
               compactMode: true,
             }}
           />
