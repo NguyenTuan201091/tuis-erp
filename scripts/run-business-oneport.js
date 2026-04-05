@@ -5,6 +5,7 @@ const http = require('http');
 const httpProxy = require('http-proxy');
 
 const GATEWAY_PORT = Number(process.env.BUSINESS_GATEWAY_PORT || 3000);
+const SKIP_DOCKER = process.env.BUSINESS_SKIP_DOCKER === '1';
 
 const APPS = {
   accounting: 'http://127.0.0.1:3007',
@@ -22,6 +23,42 @@ function runSync(command, args, label) {
   if (result.status !== 0) {
     throw new Error(`Failed: ${label}`);
   }
+}
+
+function checkDockerAccess() {
+  const probe = spawnSync('docker', ['ps'], {
+    stdio: 'pipe',
+    shell: process.platform === 'win32',
+    env: process.env,
+    encoding: 'utf8',
+  });
+
+  if (probe.status === 0) return;
+
+  const combined = `${probe.stdout || ''}\n${probe.stderr || ''}`.toLowerCase();
+  const isPermissionError =
+    combined.includes('permission denied while trying to connect to the docker api') ||
+    combined.includes('/var/run/docker.sock') ||
+    combined.includes('got permission denied');
+
+  if (isPermissionError) {
+    throw new Error(
+      [
+        'Docker permission error: current user cannot access /var/run/docker.sock.',
+        '',
+        'Fix on Ubuntu:',
+        '  sudo usermod -aG docker $USER',
+        '  newgrp docker',
+        '  docker ps',
+        '',
+        'Temporary workaround:',
+        '  sudo npm run docker:up',
+        '  BUSINESS_SKIP_DOCKER=1 npm run dev:business:one',
+      ].join('\n')
+    );
+  }
+
+  throw new Error('Docker is not ready. Please ensure Docker Engine is installed and running.');
 }
 
 function parseCookie(header) {
@@ -127,8 +164,13 @@ function createGateway() {
 try {
   console.log('\n=== Business Profile (One Localhost) ===\n');
 
-  console.log('1) Starting Docker infrastructure...');
-  runSync('npm', ['run', 'docker:up'], 'docker:up');
+  if (SKIP_DOCKER) {
+    console.log('1) Skipping Docker infrastructure (BUSINESS_SKIP_DOCKER=1).');
+  } else {
+    console.log('1) Starting Docker infrastructure...');
+    checkDockerAccess();
+    runSync('npm', ['run', 'docker:up'], 'docker:up');
+  }
 
   console.log('2) Preparing database schemas and seed data...');
   runSync('node', ['scripts/db-push-business.js'], 'db-push-business');
